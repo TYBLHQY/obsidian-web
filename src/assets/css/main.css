@@ -1,4 +1,5 @@
 @import "tailwindcss";
 @import "@catppuccin/tailwindcss/mocha.css";
+@import "highlight.js/styles/atom-one-dark.css";
 
 /* latte | mocha | frappe | macchiato */

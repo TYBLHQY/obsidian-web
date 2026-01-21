@@ -13,17 +13,26 @@ import type {
   ParseOptions,
   RootNode,
   StrongNode,
+  TableCellNode,
+  TableNode,
+  TableRowNode,
   TextNode,
   ThematicBreakNode,
 } from "@/markdown/types";
 import rehypeFormat from "rehype-format";
 import rehypeStringify from "rehype-stringify";
+import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 
 export class MarkdownParser {
-  private processor = unified().use(remarkParse).use(remarkRehype).use(rehypeFormat).use(rehypeStringify);
+  private processor = unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkRehype)
+    .use(rehypeFormat)
+    .use(rehypeStringify);
 
   // markdown -> AST
   parse(markdown: string, options?: ParseOptions): ASTNode {
@@ -128,6 +137,24 @@ export class MarkdownParser {
         return {
           type: "thematicBreak",
         } as ThematicBreakNode;
+
+      case "table":
+        return {
+          type: "table",
+          children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
+        } as TableNode;
+
+      case "tableRow":
+        return {
+          type: "tableRow",
+          children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
+        } as TableRowNode;
+
+      case "tableCell":
+        return {
+          type: "tableCell",
+          children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
+        } as TableCellNode;
 
       case "html":
         return {

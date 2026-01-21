@@ -1,8 +1,3 @@
-/**
- * Markdown AST 渲染器组件
- * 将 AST 节点转换为 Vue 虚拟节点树
- */
-
 import type {
   ASTNode,
   BlockquoteNode,
@@ -24,6 +19,7 @@ import type {
   TextNode,
   ThematicBreakNode,
 } from "@/markdown";
+import hljs from "highlight.js";
 import type { PropType } from "vue";
 import { computed, defineComponent } from "vue";
 
@@ -34,13 +30,25 @@ const CodeBlock = defineComponent({
     language: String,
   },
   setup(props) {
+    const getHighlightedCode = () => {
+      if (!props.code) return props.code;
+
+      try {
+        if (props.language && hljs.getLanguage(props.language)) {
+          return hljs.highlight(props.code, { language: props.language }).value;
+        }
+        return hljs.highlightAuto(props.code).value;
+      } catch {
+        return props.code;
+      }
+    };
+
     return () => (
       <pre class={"mb-4 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100 dark:bg-gray-950"}>
         <code
-          class={"font-mono whitespace-pre-wrap"}
-          style={{ fontSize: "0.875rem" }}>
-          {props.code}
-        </code>
+          class={"hljs font-mono whitespace-pre-wrap"}
+          innerHTML={getHighlightedCode()}
+          style={{ fontSize: "0.875rem" }}></code>
       </pre>
     );
   },
@@ -285,10 +293,7 @@ const ASTRenderer = defineComponent({
     const renderTable = (node: TableNode) => {
       return (
         <table class={"mb-4 w-full border-collapse border border-gray-300 dark:border-gray-600"}>
-          <thead class={"bg-gray-100 font-semibold text-gray-900 dark:bg-gray-800 dark:text-gray-100"}>
-            {node.children?.map(child => renderNode(child))}
-          </thead>
-          <tbody>{node.children?.map(child => renderNode(child))}</tbody>
+          {node.children?.map(child => renderNode(child))}
         </table>
       );
     };
