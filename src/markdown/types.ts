@@ -1,3 +1,49 @@
+import type {
+  Blockquote,
+  Code,
+  Emphasis,
+  Heading,
+  Html,
+  Image,
+  InlineCode,
+  Link,
+  List,
+  ListItem,
+  Paragraph,
+  Root,
+  RootContent,
+  Strong,
+  Table,
+  TableCell,
+  TableRow,
+  Text,
+  ThematicBreak,
+} from "mdast";
+import type { InlineMath, Math } from "mdast-util-math";
+
+export type MdAstType =
+  | Blockquote
+  | Code
+  | Emphasis
+  | Heading
+  | Html
+  | Image
+  | InlineCode
+  | Link
+  | List
+  | ListItem
+  | Paragraph
+  | Root
+  | Strong
+  | Table
+  | TableCell
+  | TableRow
+  | Text
+  | ThematicBreak
+  | Math
+  | InlineMath
+  | RootContent;
+
 export type NodeType =
   | "blockquote"
   | "code"
@@ -23,7 +69,6 @@ export type NodeType =
 export interface BaseNode {
   type: NodeType;
   children?: ASTNode[];
-  data?: Record<string, any>;
 }
 
 export interface TextNode extends BaseNode {
@@ -164,7 +209,6 @@ export type ASTNode =
 
 export interface RenderConfig {
   classNamePrefix?: string;
-  customComponents?: Record<string, any>;
   allowHtml?: boolean;
 }
 

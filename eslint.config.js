@@ -3,7 +3,7 @@ import ts from "typescript-eslint";
 
 export default [
   {
-    ignores: ["dist", "node_modules", ".git"],
+    ignores: ["dist", "node_modules", ".git", "pnpm-lock.yaml", "yarn.lock", "package-lock.json"],
   },
   js.configs.recommended,
   ...ts.configs.recommended,
@@ -14,12 +14,20 @@ export default [
         {
           patterns: [
             {
-              group: ["@/markdown/*", "!@/markdown"],
-              message: '只能从 @/markdown 导入，不能直接访问子模块。请改为 import { ... } from "@/markdown"',
+              group: ["@/markdown/*"],
+              message: '只能从 "@/markdown" 导入，禁止直接访问子模块。',
             },
           ],
         },
       ],
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+    },
+  },
+  {
+    files: ["src/markdown/**/*.{ts,tsx,js,jsx}"],
+    rules: {
+      "no-restricted-imports": "off",
     },
   },
 ];

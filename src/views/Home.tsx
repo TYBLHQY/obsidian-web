@@ -35,7 +35,7 @@ const Home = defineComponent({
             </div>
             <textarea
               value={markdown.value}
-              onInput={(e: any) => setMarkdown(e.target.value)}
+              onInput={(e: InputEvent) => setMarkdown((e.target as HTMLTextAreaElement).value)}
               class="h-full w-full resize-none bg-white p-4 font-mono text-sm text-gray-900 focus:outline-none dark:bg-gray-900 dark:text-gray-100"
               spellcheck="false"
             />
@@ -109,6 +109,29 @@ const Home = defineComponent({
                 ))
               ) : (
                 <li class="text-gray-500 italic dark:text-gray-400">暂无链接</li>
+              )}
+            </ul>
+          </div>
+
+          {/* 图片列表 */}
+          <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-md dark:border-gray-700 dark:bg-gray-800">
+            <h3 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">图片</h3>
+            <ul class="space-y-2 text-sm">
+              {images.value.length > 0 ? (
+                images.value.map(image => (
+                  <li class="truncate">
+                    <a
+                      href={image.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-blue-600 hover:underline dark:text-blue-400"
+                      title={image.url}>
+                      {image.alt || image.url}
+                    </a>
+                  </li>
+                ))
+              ) : (
+                <li class="text-gray-500 italic dark:text-gray-400">暂无图片</li>
               )}
             </ul>
           </div>

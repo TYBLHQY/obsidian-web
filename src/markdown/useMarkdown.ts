@@ -80,20 +80,20 @@ export function useMarkdownParser() {
     return renderMarkdownToHtml(content);
   };
 
-  const extractHeadings = (ast: ASTNode): Array<{ level: number; text: string }> => {
+  const extractHeadings = (ast: ASTNode): Array<{ text: string; level: number }> => {
     const headings: Array<{ level: number; text: string }> = [];
 
     const traverse = (node: ASTNode) => {
       if (node.type === "heading") {
-        const headingNode = node as any;
+        const headingNode = node;
         let text = "";
 
         const extractText = (n: ASTNode): string => {
           if (n.type === "text") {
-            return (n as any).value;
+            return n.value;
           }
           if ("children" in n && n.children) {
-            return n.children.map(c => extractText(c as ASTNode)).join("");
+            return n.children.map(c => extractText(c)).join("");
           }
           return "";
         };
@@ -106,7 +106,7 @@ export function useMarkdownParser() {
       }
 
       if ("children" in node && node.children) {
-        node.children.forEach(child => traverse(child as ASTNode));
+        node.children.forEach(child => traverse(child));
       }
     };
 
@@ -119,20 +119,20 @@ export function useMarkdownParser() {
 
     const traverse = (node: ASTNode) => {
       if (node.type === "link") {
-        const linkNode = node as any;
+        const linkNode = node;
         let text = "";
 
         const extractText = (n: ASTNode): string => {
           if (n.type === "text") {
-            return (n as any).value;
+            return n.value;
           }
           if ("children" in n && n.children) {
-            return n.children.map(c => extractText(c as ASTNode)).join("");
+            return n.children.map(c => extractText(c)).join("");
           }
           return "";
         };
 
-        text = linkNode.children?.map((c: ASTNode) => extractText(c)).join("") || "";
+        text = linkNode.children?.map(c => extractText(c)).join("") || "";
         links.push({
           url: linkNode.url,
           title: linkNode.title,
@@ -141,7 +141,7 @@ export function useMarkdownParser() {
       }
 
       if ("children" in node && node.children) {
-        node.children.forEach(child => traverse(child as ASTNode));
+        node.children.forEach(child => traverse(child));
       }
     };
 
@@ -154,7 +154,7 @@ export function useMarkdownParser() {
 
     const traverse = (node: ASTNode) => {
       if (node.type === "image") {
-        const imageNode = node as any;
+        const imageNode = node;
         images.push({
           url: imageNode.url,
           alt: imageNode.alt,
@@ -163,7 +163,7 @@ export function useMarkdownParser() {
       }
 
       if ("children" in node && node.children) {
-        node.children.forEach(child => traverse(child as ASTNode));
+        node.children.forEach(child => traverse(child));
       }
     };
 

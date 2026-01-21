@@ -5,6 +5,7 @@ import type {
   CodeNode,
   EmphasisNode,
   HeadingNode,
+  HTMLNode,
   ImageNode,
   InlineMathNode,
   LinkNode,
@@ -19,12 +20,12 @@ import type {
   TableNode,
   TableRowNode,
   TextNode,
-  ThematicBreakNode,
 } from "@/markdown";
 import hljs from "highlight.js";
 import katex from "katex";
 import type { PropType } from "vue";
 import { computed, defineComponent } from "vue";
+import type { JSX } from "vue/jsx-runtime";
 
 const CodeBlock = defineComponent({
   name: "CodeBlock",
@@ -77,48 +78,44 @@ const ASTRenderer = defineComponent({
       ...props.config,
     }));
 
-    const renderNode = (node: ASTNode): any => {
+    const renderNode = (node: ASTNode): JSX.Element | undefined | null | string => {
       switch (node.type) {
         case "blockquote":
-          return renderBlockquote(node as BlockquoteNode);
+          return renderBlockquote(node);
         case "code":
-          return renderCode(node as CodeNode);
+          return renderCode(node);
         case "codeBlock":
-          return renderCodeBlock(node as CodeBlockNode);
+          return renderCodeBlock(node);
         case "emphasis":
-          return renderEmphasis(node as EmphasisNode);
+          return renderEmphasis(node);
         case "heading":
-          return renderHeading(node as HeadingNode);
+          return renderHeading(node);
         case "html":
           return renderHTML(node);
         case "image":
-          return renderImage(node as ImageNode);
+          return renderImage(node);
         case "inlineMath":
-          return renderInlineMath(node as InlineMathNode);
+          return renderInlineMath(node);
         case "link":
-          return renderLink(node as LinkNode);
+          return renderLink(node);
         case "list":
-          return renderList(node as ListNode);
+          return renderList(node);
         case "listItem":
-          return renderListItem(node as ListItemNode);
+          return renderListItem(node);
         case "math":
-          return renderMath(node as MathNode);
+          return renderMath(node);
         case "paragraph":
-          return renderParagraph(node as ParagraphNode);
+          return renderParagraph(node);
         case "root":
-          return renderRoot(node as RootNode);
+          return renderRoot(node);
         case "strong":
-          return renderStrong(node as StrongNode);
+          return renderStrong(node);
         case "table":
-          return renderTable(node as TableNode);
-        // case "tableCell":
-        //   return renderTableCell(node as TableCellNode);
-        // case "tableRow":
-        //   return renderTableRow(node as TableRowNode);
+          return renderTable(node);
         case "text":
-          return renderText(node as TextNode);
+          return renderText(node);
         case "thematicBreak":
-          return renderThematicBreak(node as ThematicBreakNode);
+          return renderThematicBreak();
         default:
           return null;
       }
@@ -139,12 +136,12 @@ const ASTRenderer = defineComponent({
     // 渲染行内代码
     const renderCode = (node: CodeNode) => {
       return (
-        <code
+        <pre
           class={
-            "inline-block rounded bg-gray-200 px-2 py-1 font-mono text-sm text-red-600 dark:bg-gray-700 dark:text-red-400"
+            "inline-block rounded bg-gray-200 px-2 py-1 align-middle font-mono text-sm text-red-600 dark:bg-gray-700 dark:text-rose-200"
           }>
-          {node.value}
-        </code>
+          <code>{node.value}</code>
+        </pre>
       );
     };
 
@@ -204,7 +201,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染 HTML
-    const renderHTML = (node: any) => {
+    const renderHTML = (node: HTMLNode) => {
       if (!finalConfig.value.allowHtml) {
         return null;
       }
@@ -331,7 +328,7 @@ const ASTRenderer = defineComponent({
     const renderTable = (node: TableNode) => {
       return (
         <table class={"mb-4 w-full border-collapse border border-gray-300 dark:border-gray-600"}>
-          {node.children?.map(child => renderTableRow(child, (node as any).align))}
+          {node.children?.map(child => renderTableRow(child, node.align))}
         </table>
       );
     };
@@ -362,7 +359,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染分割线
-    const renderThematicBreak = (node: ThematicBreakNode) => {
+    const renderThematicBreak = () => {
       return <hr class={"my-8 border-0 border-t-2 border-gray-300 dark:border-gray-600"} />;
     };
 

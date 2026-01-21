@@ -51,6 +51,8 @@ $$
 x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}
 $$
 
+\`test function here\`
+
 \`\`\`javascript
 // 这是一个代码块
 function greet(name) {

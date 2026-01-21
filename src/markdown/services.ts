@@ -11,6 +11,7 @@ import type {
   ListItemNode,
   ListNode,
   MathNode,
+  MdAstType,
   ParagraphNode,
   ParseOptions,
   RootNode,
@@ -21,59 +22,48 @@ import type {
   TextNode,
   ThematicBreakNode,
 } from "@/markdown/types";
-import rehypeFormat from "rehype-format";
-import rehypeKatex from "rehype-katex";
-import rehypeStringify from "rehype-stringify";
+
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkParse from "remark-parse";
-import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 
 export class MarkdownParser {
-  private processor = unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkMath)
-    .use(remarkRehype)
-    .use(rehypeKatex)
-    .use(rehypeFormat)
-    .use(rehypeStringify);
-
+  private processor = unified().use(remarkParse).use(remarkGfm).use(remarkMath);
   // markdown -> AST
   parse(markdown: string, options?: ParseOptions): ASTNode {
     const file = this.processor.parse(markdown);
-    return this.mdastToCustomAST(file as any);
+    return this.mdastToCustomAST(file);
   }
 
   // mdast -> custom AST
-  private mdastToCustomAST(node: any): ASTNode {
+  private mdastToCustomAST(node: MdAstType): ASTNode {
     const type = node.type;
 
     switch (type) {
       case "root":
         return {
           type: "root",
-          children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
+          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
         } as RootNode;
 
       case "paragraph":
         return {
           type: "paragraph",
-          children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
+          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
         } as ParagraphNode;
 
       case "heading":
         return {
           type: "heading",
           depth: node.depth,
-          children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
+          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
         } as HeadingNode;
 
       case "blockquote":
         return {
           type: "blockquote",
-          children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
+          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
         } as BlockquoteNode;
 
       case "list":
@@ -81,14 +71,14 @@ export class MarkdownParser {
           type: "list",
           ordered: node.ordered || false,
           start: node.start,
-          children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
+          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
         } as ListNode;
 
       case "listItem":
         return {
           type: "listItem",
           checked: node.checked,
-          children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
+          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
         } as ListItemNode;
 
       case "code":
@@ -108,13 +98,13 @@ export class MarkdownParser {
       case "emphasis":
         return {
           type: "emphasis",
-          children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
+          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
         } as EmphasisNode;
 
       case "strong":
         return {
           type: "strong",
-          children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
+          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
         } as StrongNode;
 
       case "link":
@@ -122,7 +112,7 @@ export class MarkdownParser {
           type: "link",
           url: node.url,
           title: node.title,
-          children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
+          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
         } as LinkNode;
 
       case "image":
@@ -161,19 +151,19 @@ export class MarkdownParser {
         return {
           type: "table",
           align: node.align,
-          children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
+          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
         } as TableNode;
 
       case "tableRow":
         return {
           type: "tableRow",
-          children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
+          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
         } as TableRowNode;
 
       case "tableCell":
         return {
           type: "tableCell",
-          children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
+          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
         } as TableCellNode;
 
       case "html":
@@ -183,17 +173,7 @@ export class MarkdownParser {
         };
 
       default:
-        // unknown node type, return a generic node
-        if (node.value !== undefined) {
-          return {
-            type: "text",
-            value: String(node.value),
-          } as TextNode;
-        }
-        return {
-          type: "paragraph",
-          children: [],
-        } as ParagraphNode;
+        throw new Error(`Unsupported node type: ${type}`);
     }
   }
 
