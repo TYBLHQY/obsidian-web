@@ -33,12 +33,6 @@ const CodeBlock = defineComponent({
     language: String,
   },
   setup(props) {
-    const a = "<a>";
-    console.log(a);
-    // function add(a, b) {
-    //   return a + b;
-    // }
-
     const getHighlightedCode = () => {
       if (!props.code) return props.code;
 
@@ -117,10 +111,10 @@ const ASTRenderer = defineComponent({
           return renderStrong(node as StrongNode);
         case "table":
           return renderTable(node as TableNode);
-        case "tableCell":
-          return renderTableCell(node as TableCellNode);
-        case "tableRow":
-          return renderTableRow(node as TableRowNode);
+        // case "tableCell":
+        //   return renderTableCell(node as TableCellNode);
+        // case "tableRow":
+        //   return renderTableRow(node as TableRowNode);
         case "text":
           return renderText(node as TextNode);
         case "thematicBreak":
@@ -233,29 +227,25 @@ const ASTRenderer = defineComponent({
             class={"my-4 h-auto max-w-full rounded-lg border border-gray-200 shadow-md dark:border-gray-700"}
             loading="lazy"
           />
-          {node.alt ? (
+          {node.alt && (
             <figcaption class={"mt-2 text-sm text-gray-600 italic dark:text-gray-400"}>{node.alt}</figcaption>
-          ) : null}
+          )}
         </figure>
       );
     };
 
     // 渲染行内数学公式
     const renderInlineMath = (node: InlineMathNode) => {
-      try {
-        const html = katex.renderToString(node.value, {
-          displayMode: false,
-          throwOnError: false,
-        });
-        return (
-          <span
-            class={"katex-inline"}
-            innerHTML={html}
-          />
-        );
-      } catch {
-        return <span class={"text-red-600 dark:text-red-400"}>公式错误: {node.value}</span>;
-      }
+      const html = katex.renderToString(node.value, {
+        displayMode: false,
+        throwOnError: false,
+      });
+      return (
+        <span
+          class={"katex-inline"}
+          innerHTML={html}
+        />
+      );
     };
 
     // 渲染链接
@@ -288,47 +278,34 @@ const ASTRenderer = defineComponent({
 
     // 渲染列表项
     const renderListItem = (node: ListItemNode) => {
-      if (node.checked !== null) {
-        return (
-          <li class={"mb-2 flex items-start gap-3"}>
-            <input
-              type="checkbox"
-              checked={node.checked}
-              disabled={true}
-              class={"h-4 w-4 cursor-pointer rounded"}
-            />
-            <span>{node.children?.map(child => renderNode(child))}</span>
-          </li>
-        );
-      }
-      return <li class={"text-gray-900 dark:text-gray-100"}>{node.children?.map(child => renderNode(child))}</li>;
+      return [
+        <li class={"mb-2 flex items-start gap-3"}>
+          <input
+            type="checkbox"
+            checked={node.checked}
+            disabled={true}
+            class={"h-4 w-4 cursor-pointer rounded"}
+          />
+          <span>{node.children?.map(child => renderNode(child))}</span>
+        </li>,
+        <li class={"text-gray-900 dark:text-gray-100"}>{node.children?.map(child => renderNode(child))}</li>,
+      ][+(node.checked === null)];
     };
 
     // 渲染块级数学公式
     const renderMath = (node: MathNode) => {
-      try {
-        const html = katex.renderToString(node.value, {
-          displayMode: true,
-          throwOnError: false,
-        });
-        return (
-          <div class={"mb-4 overflow-x-auto rounded bg-gray-50 p-4 dark:bg-gray-900"}>
-            <div
-              class={"katex-display text-gray-900 dark:text-gray-100"}
-              innerHTML={html}
-            />
-          </div>
-        );
-      } catch {
-        return (
+      const html = katex.renderToString(node.value, {
+        displayMode: true,
+        throwOnError: false,
+      });
+      return (
+        <div class={"mb-4 overflow-x-auto rounded bg-gray-50 p-4 dark:bg-gray-900"}>
           <div
-            class={
-              "mb-4 rounded border border-red-300 bg-red-50 p-4 text-red-600 dark:border-red-700 dark:bg-red-950 dark:text-red-400"
-            }>
-            公式渲染错误: {node.value}
-          </div>
-        );
-      }
+            class={"katex-display text-gray-900 dark:text-gray-100"}
+            innerHTML={html}
+          />
+        </div>
+      );
     };
 
     // 渲染段落
@@ -354,26 +331,28 @@ const ASTRenderer = defineComponent({
     const renderTable = (node: TableNode) => {
       return (
         <table class={"mb-4 w-full border-collapse border border-gray-300 dark:border-gray-600"}>
-          {node.children?.map(child => renderNode(child))}
+          {node.children?.map(child => renderTableRow(child, (node as any).align))}
         </table>
       );
     };
 
-    // 渲染表格单元格
-    const renderTableCell = (node: TableCellNode) => {
+    // 渲染表格行
+    const renderTableRow = (node: TableRowNode, align?: ("left" | "center" | "right")[]) => {
       return (
-        <td class={"border border-gray-300 px-4 py-2 text-gray-900 dark:border-gray-600 dark:text-gray-100"}>
-          {node.children?.map(child => renderNode(child))}
-        </td>
+        <tr class={"transition-colors hover:bg-gray-50 dark:hover:bg-gray-900"}>
+          {node.children?.map((child, index) => renderTableCell(child, align?.[index]))}
+        </tr>
       );
     };
 
-    // 渲染表格行
-    const renderTableRow = (node: TableRowNode) => {
+    // 渲染表格单元格
+    const renderTableCell = (node: TableCellNode, align?: "left" | "center" | "right") => {
+      const textAlignClass = align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left";
       return (
-        <tr class={"transition-colors hover:bg-gray-50 dark:hover:bg-gray-900"}>
+        <td
+          class={`border border-gray-300 px-4 py-2 text-gray-900 dark:border-gray-600 dark:text-gray-100 ${textAlignClass}`}>
           {node.children?.map(child => renderNode(child))}
-        </tr>
+        </td>
       );
     };
 
@@ -392,14 +371,15 @@ const ASTRenderer = defineComponent({
       return url.startsWith("http://") || url.startsWith("https://");
     };
 
-    // helper function: 生成标题 ID
+    // helper function: 生成标题 id
     const generateId = (node: HeadingNode): string => {
-      const text = extractTextContent(node);
-
-      return text
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "");
+      const text = extractTextContent(node).toLowerCase().replace(/[\s]+/g, "-").replace(/^-|-$/g, "");
+      const hashed = Array.from(text).reduce((hash, char) => {
+        hash = (hash << 5) - hash + char.charCodeAt(0);
+        return hash & hash;
+      }, 0);
+      const hashSuffix = Math.abs(hashed).toString(36);
+      return `heading-${text}-${hashSuffix}`;
     };
 
     // helper function: 提取节点文本内容

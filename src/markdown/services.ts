@@ -160,6 +160,7 @@ export class MarkdownParser {
       case "table":
         return {
           type: "table",
+          align: node.align,
           children: (node.children || []).map((child: any) => this.mdastToCustomAST(child)),
         } as TableNode;
 
