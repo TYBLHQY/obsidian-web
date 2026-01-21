@@ -1,22 +1,24 @@
 export type NodeType =
-  | "root"
-  | "paragraph"
-  | "heading"
   | "blockquote"
-  | "list"
-  | "listItem"
   | "code"
   | "codeBlock"
   | "emphasis"
-  | "strong"
-  | "link"
-  | "image"
-  | "text"
-  | "thematicBreak"
+  | "heading"
   | "html"
+  | "image"
+  | "inlineMath"
+  | "link"
+  | "list"
+  | "listItem"
+  | "math"
+  | "paragraph"
+  | "root"
+  | "strong"
   | "table"
+  | "tableCell"
   | "tableRow"
-  | "tableCell";
+  | "text"
+  | "thematicBreak";
 
 export interface BaseNode {
   type: NodeType;
@@ -122,30 +124,43 @@ export interface TableCellNode extends BaseNode {
   children: ASTNode[];
 }
 
+export interface MathNode extends BaseNode {
+  type: "math";
+  value: string;
+  meta?: string;
+}
+
+export interface InlineMathNode extends BaseNode {
+  type: "inlineMath";
+  value: string;
+}
+
 export interface RootNode extends BaseNode {
   type: "root";
   children: ASTNode[];
 }
 
 export type ASTNode =
-  | RootNode
-  | ParagraphNode
-  | HeadingNode
   | BlockquoteNode
-  | ListNode
-  | ListItemNode
-  | CodeNode
   | CodeBlockNode
+  | CodeNode
   | EmphasisNode
-  | StrongNode
-  | LinkNode
-  | ImageNode
-  | TextNode
-  | ThematicBreakNode
+  | HeadingNode
   | HTMLNode
+  | ImageNode
+  | InlineMathNode
+  | LinkNode
+  | ListItemNode
+  | ListNode
+  | MathNode
+  | ParagraphNode
+  | RootNode
+  | StrongNode
   | TableNode
+  | TableCellNode
   | TableRowNode
-  | TableCellNode;
+  | TextNode
+  | ThematicBreakNode;
 
 export interface RenderConfig {
   classNamePrefix?: string;

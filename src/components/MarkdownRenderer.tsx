@@ -6,9 +6,11 @@ import type {
   EmphasisNode,
   HeadingNode,
   ImageNode,
+  InlineMathNode,
   LinkNode,
   ListItemNode,
   ListNode,
+  MathNode,
   ParagraphNode,
   RenderConfig,
   RootNode,
@@ -20,6 +22,7 @@ import type {
   ThematicBreakNode,
 } from "@/markdown";
 import hljs from "highlight.js";
+import katex from "katex";
 import type { PropType } from "vue";
 import { computed, defineComponent } from "vue";
 
@@ -112,6 +115,10 @@ const ASTRenderer = defineComponent({
           return renderTableCell(node as TableCellNode);
         case "html":
           return renderHTML(node);
+        case "math":
+          return renderMath(node as MathNode);
+        case "inlineMath":
+          return renderInlineMath(node as InlineMathNode);
         default:
           return null;
       }
@@ -327,6 +334,51 @@ const ASTRenderer = defineComponent({
           innerHTML={node.value}
         />
       );
+    };
+
+    // 渲染块级数学公式
+    const renderMath = (node: MathNode) => {
+      try {
+        const html = katex.renderToString(node.value, {
+          displayMode: true,
+          throwOnError: false,
+        });
+        return (
+          <div class={"mb-4 overflow-x-auto rounded bg-gray-50 p-4 dark:bg-gray-900"}>
+            <div
+              class={"katex-display text-gray-900 dark:text-gray-100"}
+              innerHTML={html}
+            />
+          </div>
+        );
+      } catch {
+        return (
+          <div
+            class={
+              "mb-4 rounded border border-red-300 bg-red-50 p-4 text-red-600 dark:border-red-700 dark:bg-red-950 dark:text-red-400"
+            }>
+            公式渲染错误: {node.value}
+          </div>
+        );
+      }
+    };
+
+    // 渲染行内数学公式
+    const renderInlineMath = (node: InlineMathNode) => {
+      try {
+        const html = katex.renderToString(node.value, {
+          displayMode: false,
+          throwOnError: false,
+        });
+        return (
+          <span
+            class={"katex-inline"}
+            innerHTML={html}
+          />
+        );
+      } catch {
+        return <span class={"text-red-600 dark:text-red-400"}>公式错误: {node.value}</span>;
+      }
     };
 
     // helper function: 检查是否为外部链接

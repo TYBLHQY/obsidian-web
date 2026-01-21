@@ -17,10 +17,13 @@
   },
   "dependencies": {
     "highlight.js": "^11.11.1",
+    "katex": "^0.16.27",
     "pinia": "^3.0.4",
     "rehype-format": "^5.0.1",
+    "rehype-katex": "^7.0.1",
     "rehype-stringify": "^10.0.1",
     "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
     "unified": "^11.0.5",

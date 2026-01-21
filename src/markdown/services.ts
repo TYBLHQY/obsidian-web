@@ -6,9 +6,11 @@ import type {
   EmphasisNode,
   HeadingNode,
   ImageNode,
+  InlineMathNode,
   LinkNode,
   ListItemNode,
   ListNode,
+  MathNode,
   ParagraphNode,
   ParseOptions,
   RootNode,
@@ -20,8 +22,10 @@ import type {
   ThematicBreakNode,
 } from "@/markdown/types";
 import rehypeFormat from "rehype-format";
+import rehypeKatex from "rehype-katex";
 import rehypeStringify from "rehype-stringify";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
@@ -30,7 +34,9 @@ export class MarkdownParser {
   private processor = unified()
     .use(remarkParse)
     .use(remarkGfm)
+    .use(remarkMath)
     .use(remarkRehype)
+    .use(rehypeKatex)
     .use(rehypeFormat)
     .use(rehypeStringify);
 
@@ -132,6 +138,19 @@ export class MarkdownParser {
           type: "text",
           value: node.value,
         } as TextNode;
+
+      case "math":
+        return {
+          type: "math",
+          value: node.value,
+          meta: node.meta,
+        } as MathNode;
+
+      case "inlineMath":
+        return {
+          type: "inlineMath",
+          value: node.value,
+        } as InlineMathNode;
 
       case "thematicBreak":
         return {
