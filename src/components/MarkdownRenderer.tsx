@@ -33,6 +33,12 @@ const CodeBlock = defineComponent({
     language: String,
   },
   setup(props) {
+    const a = "<a>";
+    console.log(a);
+    // function add(a, b) {
+    //   return a + b;
+    // }
+
     const getHighlightedCode = () => {
       if (!props.code) return props.code;
 
@@ -79,59 +85,90 @@ const ASTRenderer = defineComponent({
 
     const renderNode = (node: ASTNode): any => {
       switch (node.type) {
-        case "root":
-          return renderRoot(node as RootNode);
-        case "paragraph":
-          return renderParagraph(node as ParagraphNode);
-        case "heading":
-          return renderHeading(node as HeadingNode);
         case "blockquote":
           return renderBlockquote(node as BlockquoteNode);
-        case "list":
-          return renderList(node as ListNode);
-        case "listItem":
-          return renderListItem(node as ListItemNode);
         case "code":
           return renderCode(node as CodeNode);
         case "codeBlock":
           return renderCodeBlock(node as CodeBlockNode);
         case "emphasis":
           return renderEmphasis(node as EmphasisNode);
-        case "strong":
-          return renderStrong(node as StrongNode);
-        case "link":
-          return renderLink(node as LinkNode);
+        case "heading":
+          return renderHeading(node as HeadingNode);
+        case "html":
+          return renderHTML(node);
         case "image":
           return renderImage(node as ImageNode);
+        case "inlineMath":
+          return renderInlineMath(node as InlineMathNode);
+        case "link":
+          return renderLink(node as LinkNode);
+        case "list":
+          return renderList(node as ListNode);
+        case "listItem":
+          return renderListItem(node as ListItemNode);
+        case "math":
+          return renderMath(node as MathNode);
+        case "paragraph":
+          return renderParagraph(node as ParagraphNode);
+        case "root":
+          return renderRoot(node as RootNode);
+        case "strong":
+          return renderStrong(node as StrongNode);
+        case "table":
+          return renderTable(node as TableNode);
+        case "tableCell":
+          return renderTableCell(node as TableCellNode);
+        case "tableRow":
+          return renderTableRow(node as TableRowNode);
         case "text":
           return renderText(node as TextNode);
         case "thematicBreak":
           return renderThematicBreak(node as ThematicBreakNode);
-        case "table":
-          return renderTable(node as TableNode);
-        case "tableRow":
-          return renderTableRow(node as TableRowNode);
-        case "tableCell":
-          return renderTableCell(node as TableCellNode);
-        case "html":
-          return renderHTML(node);
-        case "math":
-          return renderMath(node as MathNode);
-        case "inlineMath":
-          return renderInlineMath(node as InlineMathNode);
         default:
           return null;
       }
     };
 
-    // 渲染根节点
-    const renderRoot = (node: RootNode) => {
-      return <article class={"mx-auto max-w-4xl"}>{node.children?.map(child => renderNode(child))}</article>;
+    // 渲染块引用
+    const renderBlockquote = (node: BlockquoteNode) => {
+      return (
+        <blockquote
+          class={
+            "mb-4 rounded border-l-4 border-blue-500 bg-blue-50 px-4 py-2 pl-4 text-gray-700 italic dark:bg-blue-950 dark:text-gray-300"
+          }>
+          {node.children?.map(child => renderNode(child))}
+        </blockquote>
+      );
     };
 
-    // 渲染段落
-    const renderParagraph = (node: ParagraphNode) => {
-      return <p class={"mb-4 text-gray-900 dark:text-gray-100"}>{node.children?.map(child => renderNode(child))}</p>;
+    // 渲染行内代码
+    const renderCode = (node: CodeNode) => {
+      return (
+        <code
+          class={
+            "inline-block rounded bg-gray-200 px-2 py-1 font-mono text-sm text-red-600 dark:bg-gray-700 dark:text-red-400"
+          }>
+          {node.value}
+        </code>
+      );
+    };
+
+    // 渲染代码块
+    const renderCodeBlock = (node: CodeBlockNode) => {
+      return (
+        <CodeBlock
+          code={node.value}
+          language={node.lang}
+        />
+      );
+    };
+
+    // 渲染强调（斜体）
+    const renderEmphasis = (node: EmphasisNode) => {
+      return (
+        <em class={"text-gray-900 italic dark:text-gray-100"}>{node.children?.map(child => renderNode(child))}</em>
+      );
     };
 
     // 渲染标题
@@ -172,15 +209,66 @@ const ASTRenderer = defineComponent({
       ][node.depth - 1];
     };
 
-    // 渲染块引用
-    const renderBlockquote = (node: BlockquoteNode) => {
+    // 渲染 HTML
+    const renderHTML = (node: any) => {
+      if (!finalConfig.value.allowHtml) {
+        return null;
+      }
       return (
-        <blockquote
-          class={
-            "mb-4 rounded border-l-4 border-blue-500 bg-blue-50 px-4 py-2 pl-4 text-gray-700 italic dark:bg-blue-950 dark:text-gray-300"
-          }>
+        <div
+          class={"prose prose-invert dark:prose my-4"}
+          innerHTML={node.value}
+        />
+      );
+    };
+
+    // 渲染图片
+    const renderImage = (node: ImageNode) => {
+      return (
+        <figure class={"my-4 text-center"}>
+          <img
+            src={node.url}
+            alt={node.alt || ""}
+            title={node.title}
+            class={"my-4 h-auto max-w-full rounded-lg border border-gray-200 shadow-md dark:border-gray-700"}
+            loading="lazy"
+          />
+          {node.alt ? (
+            <figcaption class={"mt-2 text-sm text-gray-600 italic dark:text-gray-400"}>{node.alt}</figcaption>
+          ) : null}
+        </figure>
+      );
+    };
+
+    // 渲染行内数学公式
+    const renderInlineMath = (node: InlineMathNode) => {
+      try {
+        const html = katex.renderToString(node.value, {
+          displayMode: false,
+          throwOnError: false,
+        });
+        return (
+          <span
+            class={"katex-inline"}
+            innerHTML={html}
+          />
+        );
+      } catch {
+        return <span class={"text-red-600 dark:text-red-400"}>公式错误: {node.value}</span>;
+      }
+    };
+
+    // 渲染链接
+    const renderLink = (node: LinkNode) => {
+      return (
+        <a
+          href={node.url}
+          title={node.title}
+          class={"cursor-pointer text-blue-600 transition-colors hover:underline dark:text-blue-400"}
+          target={isExternalUrl(node.url) ? "_blank" : undefined}
+          rel={isExternalUrl(node.url) ? "noopener noreferrer" : undefined}>
           {node.children?.map(child => renderNode(child))}
-        </blockquote>
+        </a>
       );
     };
 
@@ -216,126 +304,6 @@ const ASTRenderer = defineComponent({
       return <li class={"text-gray-900 dark:text-gray-100"}>{node.children?.map(child => renderNode(child))}</li>;
     };
 
-    // 渲染行内代码
-    const renderCode = (node: CodeNode) => {
-      return (
-        <code
-          class={
-            "inline-block rounded bg-gray-200 px-2 py-1 font-mono text-sm text-red-600 dark:bg-gray-700 dark:text-red-400"
-          }>
-          {node.value}
-        </code>
-      );
-    };
-
-    // 渲染代码块
-    const renderCodeBlock = (node: CodeBlockNode) => {
-      return (
-        <CodeBlock
-          code={node.value}
-          language={node.lang}
-        />
-      );
-    };
-
-    // 渲染强调（斜体）
-    const renderEmphasis = (node: EmphasisNode) => {
-      return (
-        <em class={"text-gray-900 italic dark:text-gray-100"}>{node.children?.map(child => renderNode(child))}</em>
-      );
-    };
-
-    // 渲染加粗
-    const renderStrong = (node: StrongNode) => {
-      return (
-        <strong class={"font-bold text-gray-900 dark:text-gray-100"}>
-          {node.children?.map(child => renderNode(child))}
-        </strong>
-      );
-    };
-
-    // 渲染链接
-    const renderLink = (node: LinkNode) => {
-      return (
-        <a
-          href={node.url}
-          title={node.title}
-          class={"cursor-pointer text-blue-600 transition-colors hover:underline dark:text-blue-400"}
-          target={isExternalUrl(node.url) ? "_blank" : undefined}
-          rel={isExternalUrl(node.url) ? "noopener noreferrer" : undefined}>
-          {node.children?.map(child => renderNode(child))}
-        </a>
-      );
-    };
-
-    // 渲染图片
-    const renderImage = (node: ImageNode) => {
-      return (
-        <figure class={"my-4 text-center"}>
-          <img
-            src={node.url}
-            alt={node.alt || ""}
-            title={node.title}
-            class={"my-4 h-auto max-w-full rounded-lg border border-gray-200 shadow-md dark:border-gray-700"}
-            loading="lazy"
-          />
-          {node.alt ? (
-            <figcaption class={"mt-2 text-sm text-gray-600 italic dark:text-gray-400"}>{node.alt}</figcaption>
-          ) : null}
-        </figure>
-      );
-    };
-
-    // 渲染纯文本
-    const renderText = (node: TextNode) => {
-      return node.value;
-    };
-
-    // 渲染分割线
-    const renderThematicBreak = (node: ThematicBreakNode) => {
-      return <hr class={"my-8 border-0 border-t-2 border-gray-300 dark:border-gray-600"} />;
-    };
-
-    // 渲染表格
-    const renderTable = (node: TableNode) => {
-      return (
-        <table class={"mb-4 w-full border-collapse border border-gray-300 dark:border-gray-600"}>
-          {node.children?.map(child => renderNode(child))}
-        </table>
-      );
-    };
-
-    // 渲染表格行
-    const renderTableRow = (node: TableRowNode) => {
-      return (
-        <tr class={"transition-colors hover:bg-gray-50 dark:hover:bg-gray-900"}>
-          {node.children?.map(child => renderNode(child))}
-        </tr>
-      );
-    };
-
-    // 渲染表格单元格
-    const renderTableCell = (node: TableCellNode) => {
-      return (
-        <td class={"border border-gray-300 px-4 py-2 text-gray-900 dark:border-gray-600 dark:text-gray-100"}>
-          {node.children?.map(child => renderNode(child))}
-        </td>
-      );
-    };
-
-    // 渲染 HTML
-    const renderHTML = (node: any) => {
-      if (!finalConfig.value.allowHtml) {
-        return null;
-      }
-      return (
-        <div
-          class={"prose prose-invert dark:prose my-4"}
-          innerHTML={node.value}
-        />
-      );
-    };
-
     // 渲染块级数学公式
     const renderMath = (node: MathNode) => {
       try {
@@ -363,22 +331,60 @@ const ASTRenderer = defineComponent({
       }
     };
 
-    // 渲染行内数学公式
-    const renderInlineMath = (node: InlineMathNode) => {
-      try {
-        const html = katex.renderToString(node.value, {
-          displayMode: false,
-          throwOnError: false,
-        });
-        return (
-          <span
-            class={"katex-inline"}
-            innerHTML={html}
-          />
-        );
-      } catch {
-        return <span class={"text-red-600 dark:text-red-400"}>公式错误: {node.value}</span>;
-      }
+    // 渲染段落
+    const renderParagraph = (node: ParagraphNode) => {
+      return <p class={"mb-4 text-gray-900 dark:text-gray-100"}>{node.children?.map(child => renderNode(child))}</p>;
+    };
+
+    // 渲染根节点
+    const renderRoot = (node: RootNode) => {
+      return <article class={"mx-auto max-w-4xl"}>{node.children?.map(child => renderNode(child))}</article>;
+    };
+
+    // 渲染加粗
+    const renderStrong = (node: StrongNode) => {
+      return (
+        <strong class={"font-bold text-gray-900 dark:text-gray-100"}>
+          {node.children?.map(child => renderNode(child))}
+        </strong>
+      );
+    };
+
+    // 渲染表格
+    const renderTable = (node: TableNode) => {
+      return (
+        <table class={"mb-4 w-full border-collapse border border-gray-300 dark:border-gray-600"}>
+          {node.children?.map(child => renderNode(child))}
+        </table>
+      );
+    };
+
+    // 渲染表格单元格
+    const renderTableCell = (node: TableCellNode) => {
+      return (
+        <td class={"border border-gray-300 px-4 py-2 text-gray-900 dark:border-gray-600 dark:text-gray-100"}>
+          {node.children?.map(child => renderNode(child))}
+        </td>
+      );
+    };
+
+    // 渲染表格行
+    const renderTableRow = (node: TableRowNode) => {
+      return (
+        <tr class={"transition-colors hover:bg-gray-50 dark:hover:bg-gray-900"}>
+          {node.children?.map(child => renderNode(child))}
+        </tr>
+      );
+    };
+
+    // 渲染纯文本
+    const renderText = (node: TextNode) => {
+      return node.value;
+    };
+
+    // 渲染分割线
+    const renderThematicBreak = (node: ThematicBreakNode) => {
+      return <hr class={"my-8 border-0 border-t-2 border-gray-300 dark:border-gray-600"} />;
     };
 
     // helper function: 检查是否为外部链接
@@ -389,6 +395,7 @@ const ASTRenderer = defineComponent({
     // helper function: 生成标题 ID
     const generateId = (node: HeadingNode): string => {
       const text = extractTextContent(node);
+
       return text
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
