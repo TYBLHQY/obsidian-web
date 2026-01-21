@@ -1,10 +1,15 @@
 import { defineComponent } from "vue";
 import { RouterView } from "vue-router";
 
-export default defineComponent(() => {
-  return () => (
-    <div>
-      <RouterView />
-    </div>
-  );
+const MainLayout = defineComponent({
+  name: "MainLayout",
+  setup() {
+    return () => (
+      <div>
+        <RouterView />
+      </div>
+    );
+  },
 });
+
+export default MainLayout;
