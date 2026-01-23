@@ -11,15 +11,18 @@ import type {
   LinkNode,
   ListItemNode,
   ListNode,
+  MarkNode,
   MathNode,
   ParagraphNode,
   RenderConfig,
   RootNode,
   StrongNode,
+  TableAlign,
   TableCellNode,
   TableNode,
   TableRowNode,
   TextNode,
+  YamlNode,
 } from "@/markdown";
 import hljs from "highlight.js";
 import katex from "katex";
@@ -102,6 +105,8 @@ const ASTRenderer = defineComponent({
           return renderList(node);
         case "listItem":
           return renderListItem(node);
+        case "mark":
+          return renderMark(node);
         case "math":
           return renderMath(node);
         case "paragraph":
@@ -116,6 +121,8 @@ const ASTRenderer = defineComponent({
           return renderText(node);
         case "thematicBreak":
           return renderThematicBreak();
+        case "yaml":
+          return renderYaml(node);
         default:
           return null;
       }
@@ -289,6 +296,15 @@ const ASTRenderer = defineComponent({
       ][+(node.checked === null)];
     };
 
+    // 渲染标记文本
+    const renderMark = (node: MarkNode) => {
+      return (
+        <mark class={"bg-yellow-200 text-gray-900 dark:bg-yellow-800 dark:text-gray-100"}>
+          {node.children?.map(child => renderNode(child))}
+        </mark>
+      );
+    };
+
     // 渲染块级数学公式
     const renderMath = (node: MathNode) => {
       const html = katex.renderToString(node.value, {
@@ -334,7 +350,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染表格行
-    const renderTableRow = (node: TableRowNode, align?: ("left" | "center" | "right")[]) => {
+    const renderTableRow = (node: TableRowNode, align?: TableAlign[]) => {
       return (
         <tr class={"transition-colors hover:bg-gray-50 dark:hover:bg-gray-900"}>
           {node.children?.map((child, index) => renderTableCell(child, align?.[index]))}
@@ -343,7 +359,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染表格单元格
-    const renderTableCell = (node: TableCellNode, align?: "left" | "center" | "right") => {
+    const renderTableCell = (node: TableCellNode, align?: TableAlign) => {
       const textAlignClass = align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left";
       return (
         <td
@@ -361,6 +377,15 @@ const ASTRenderer = defineComponent({
     // 渲染分割线
     const renderThematicBreak = () => {
       return <hr class={"my-8 border-0 border-t-2 border-gray-300 dark:border-gray-600"} />;
+    };
+
+    // 渲染 yaml
+    const renderYaml = (node: YamlNode) => {
+      return (
+        <pre class={"mb-4 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100 dark:bg-gray-950"}>
+          <code class={"font-mono whitespace-pre-wrap"}>{node.value}</code>
+        </pre>
+      );
     };
 
     // helper function: 检查是否为外部链接
@@ -385,7 +410,7 @@ const ASTRenderer = defineComponent({
         return (node as TextNode).value;
       }
       if ("children" in node && node.children) {
-        return node.children.map(child => extractTextContent(child as ASTNode)).join("");
+        return node.children.map(child => extractTextContent(child)).join("");
       }
       return "";
     };

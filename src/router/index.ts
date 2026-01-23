@@ -11,6 +11,10 @@ const router = createRouter({
           path: "",
           component: () => import("@/views/Home"),
         },
+        {
+          path: "/develop",
+          component: () => import("@/views/Develop"),
+        },
       ],
     },
   ],

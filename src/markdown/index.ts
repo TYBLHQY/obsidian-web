@@ -1,7 +1,6 @@
 // types
 export type {
   ASTNode,
-  BaseNode,
   BlockquoteNode,
   CodeBlockNode,
   CodeNode,
@@ -13,18 +12,20 @@ export type {
   LinkNode,
   ListItemNode,
   ListNode,
+  MarkNode,
   MathNode,
-  NodeType,
   ParagraphNode,
   ParseOptions,
   RenderConfig,
   RootNode,
   StrongNode,
+  TableAlign,
   TableCellNode,
   TableNode,
   TableRowNode,
   TextNode,
   ThematicBreakNode,
+  YamlNode,
 } from "@/markdown/types";
 
 // services

@@ -10,8 +10,8 @@ import type {
   LinkNode,
   ListItemNode,
   ListNode,
+  MarkNode,
   MathNode,
-  MdAstType,
   ParagraphNode,
   ParseOptions,
   RootNode,
@@ -21,26 +21,50 @@ import type {
   TableRowNode,
   TextNode,
   ThematicBreakNode,
+  YamlNode,
 } from "@/markdown/types";
-
+import type { Root, RootContent } from "mdast";
+import remarkFlexibleMarkers from "remark-flexible-markers";
+import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkParse from "remark-parse";
 import { unified } from "unified";
 
 export class MarkdownParser {
-  private processor = unified().use(remarkParse).use(remarkGfm).use(remarkMath);
+  private processor = unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkFrontmatter)
+    .use(remarkFlexibleMarkers)
+    .use(remarkMath);
+
   // markdown -> AST
   parse(markdown: string, options?: ParseOptions): ASTNode {
-    const file = this.processor.parse(markdown);
-    return this.mdastToCustomAST(file);
+    const tree = this.processor.parse(markdown);
+    this.processor.run(tree);
+    return this.mdastToCustomAST(tree);
   }
 
   // mdast -> custom AST
-  private mdastToCustomAST(node: MdAstType): ASTNode {
+  private mdastToCustomAST(node: Root | RootContent): ASTNode {
     const type = node.type;
 
     switch (type) {
+      case "blockquote":
+        return {
+          type: "blockquote",
+          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
+        } as BlockquoteNode;
+
+      case "code":
+        return {
+          type: "codeBlock",
+          value: node.value,
+          lang: node.lang,
+          meta: node.meta,
+        } as CodeBlockNode;
+
       case "root":
         return {
           type: "root",
@@ -60,12 +84,6 @@ export class MarkdownParser {
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
         } as HeadingNode;
 
-      case "blockquote":
-        return {
-          type: "blockquote",
-          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
-        } as BlockquoteNode;
-
       case "list":
         return {
           type: "list",
@@ -80,14 +98,6 @@ export class MarkdownParser {
           checked: node.checked,
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
         } as ListItemNode;
-
-      case "code":
-        return {
-          type: "codeBlock",
-          value: node.value,
-          lang: node.lang,
-          meta: node.meta,
-        } as CodeBlockNode;
 
       case "inlineCode":
         return {
@@ -129,6 +139,12 @@ export class MarkdownParser {
           value: node.value,
         } as TextNode;
 
+      case "mark":
+        return {
+          type: "mark",
+          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
+        } as MarkNode;
+
       case "math":
         return {
           type: "math",
@@ -165,6 +181,12 @@ export class MarkdownParser {
           type: "tableCell",
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
         } as TableCellNode;
+
+      case "yaml":
+        return {
+          type: "yaml",
+          value: node.value,
+        } as YamlNode;
 
       case "html":
         return {

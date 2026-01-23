@@ -1,14 +1,29 @@
-export const exampleMarkdown = `# 测试样例
+---
+type: note
+domain: 英语
+category: learning
+tags:
+  - asd
+  - fsdf
+  - sdfds
+---
+
+# 测试样例
+
+==test==
 
 **表格：**
 
-| 姓名   | 年龄 | 职业     |  能力  |
-| :---- | :--: | --------: | ---- |
-| 张三   | 28   | 工程师   | 优秀   |
-| 李四   | 34   | 设计师   | 良好   |
-| 王五   | 25   | 产品经理 | 优秀   |
+| 姓名 | 年龄 |     职业 | 能力 |
+| :--- | :--: | -------: | ---- |
+| 张三 |  28  |   工程师 | 优秀 |
+| 李四 |  34  |   设计师 | 良好 |
+| 王五 |  25  | 产品经理 | 优秀 |
+
 # 一级标题
+
 ## 二级标题
+
 ### 三级标题
 
 这是一个**加粗**的文本，这是一个*斜体*的文本。
@@ -48,20 +63,18 @@ $$
 求根公式：
 
 $$
-x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}
+x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
 $$
 
-\`test function here\`
+`test function here`
 
-\`\`\`javascript
+```javascript
 // 这是一个代码块
 function greet(name) {
-    return 'Hello, ' + name + '!';
+  return "Hello, " + name + "!";
 }
-\`\`\`
+```
 
 > 这是一个引用块。
 
 ![示例图片](/images/example.png)
-
-`;

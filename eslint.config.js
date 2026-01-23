@@ -3,7 +3,7 @@ import ts from "typescript-eslint";
 
 export default [
   {
-    ignores: ["dist", "node_modules", ".git", "pnpm-lock.yaml", "yarn.lock", "package-lock.json"],
+    ignores: ["dist", "node_modules", ".git", "pnpm-lock.yaml", "yarn.lock", "package-lock.json", "scripts"],
   },
   js.configs.recommended,
   ...ts.configs.recommended,
