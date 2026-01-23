@@ -30,7 +30,7 @@ export class MarkdownParser {
       case "blockquote":
         return {
           type: "blockquote",
-          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
+          children: node.children.map(c => this.mdastToCustomAST(c)),
         } as NodeData<"blockquote">;
 
       case "code":
@@ -44,20 +44,20 @@ export class MarkdownParser {
       case "root":
         return {
           type: "root",
-          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
+          children: node.children.map(c => this.mdastToCustomAST(c)),
         } as NodeData<"root">;
 
       case "paragraph":
         return {
           type: "paragraph",
-          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
+          children: node.children.map(c => this.mdastToCustomAST(c)),
         } as NodeData<"paragraph">;
 
       case "heading":
         return {
           type: "heading",
           depth: node.depth,
-          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
+          children: node.children.map(c => this.mdastToCustomAST(c)),
         } as NodeData<"heading">;
 
       case "list":
@@ -65,14 +65,14 @@ export class MarkdownParser {
           type: "list",
           ordered: node.ordered || false,
           start: node.start,
-          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
+          children: node.children.map(c => this.mdastToCustomAST(c)),
         } as NodeData<"list">;
 
       case "listItem":
         return {
           type: "listItem",
           checked: node.checked,
-          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
+          children: node.children.map(c => this.mdastToCustomAST(c)),
         } as NodeData<"listItem">;
 
       case "inlineCode":
@@ -84,13 +84,13 @@ export class MarkdownParser {
       case "emphasis":
         return {
           type: "emphasis",
-          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
+          children: node.children.map(c => this.mdastToCustomAST(c)),
         } as NodeData<"emphasis">;
 
       case "strong":
         return {
           type: "strong",
-          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
+          children: node.children.map(c => this.mdastToCustomAST(c)),
         } as NodeData<"strong">;
 
       case "link":
@@ -98,7 +98,7 @@ export class MarkdownParser {
           type: "link",
           url: node.url,
           title: node.title,
-          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
+          children: node.children.map(c => this.mdastToCustomAST(c)),
         } as NodeData<"link">;
 
       case "image":
@@ -118,7 +118,7 @@ export class MarkdownParser {
       case "mark":
         return {
           type: "mark",
-          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
+          children: node.children.map(c => this.mdastToCustomAST(c)),
         } as NodeData<"mark">;
 
       case "math":
@@ -143,19 +143,19 @@ export class MarkdownParser {
         return {
           type: "table",
           align: node.align,
-          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
+          children: node.children.map(c => this.mdastToCustomAST(c)),
         } as NodeData<"table">;
 
       case "tableRow":
         return {
           type: "tableRow",
-          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
+          children: node.children.map(c => this.mdastToCustomAST(c)),
         } as NodeData<"tableRow">;
 
       case "tableCell":
         return {
           type: "tableCell",
-          children: (node.children || []).map(child => this.mdastToCustomAST(child)),
+          children: node.children.map(c => this.mdastToCustomAST(c)),
         } as NodeData<"tableCell">;
 
       case "yaml":
@@ -175,7 +175,7 @@ export class MarkdownParser {
     }
   }
 
-  // 遍历 ASTNode
+  // walk nodes
   walk(node: ASTNode, callback: (node: ASTNode, parent?: ASTNode) => void, parent?: ASTNode): void {
     callback(node, parent);
 
@@ -184,7 +184,7 @@ export class MarkdownParser {
     }
   }
 
-  // 查找 ASTNode
+  // find nodes
   find(node: ASTNode, predicate: (node: ASTNode) => boolean): ASTNode[] {
     const results: ASTNode[] = [];
 

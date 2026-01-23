@@ -77,9 +77,9 @@ const Develop = defineComponent({
                 <li
                   class="text-gray-700 dark:text-gray-300"
                   style={{
-                    paddingLeft: `${(heading.level - 1) * 12}px`,
+                    paddingLeft: `${(heading.depth - 1) * 12}px`,
                   }}>
-                  {heading.text}
+                  {heading.children?.map(child => (child.type === "text" ? child.value : "")).join("")}
                 </li>
               ))}
             </ul>
@@ -89,22 +89,18 @@ const Develop = defineComponent({
           <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-md dark:border-gray-700 dark:bg-gray-800">
             <h3 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">链接</h3>
             <ul class="space-y-2 text-sm">
-              {links.value.length > 0 ? (
-                links.value.map(link => (
-                  <li class="truncate">
-                    <a
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="text-blue-600 hover:underline dark:text-blue-400"
-                      title={link.url}>
-                      {link.text || link.url}
-                    </a>
-                  </li>
-                ))
-              ) : (
-                <li class="text-gray-500 italic dark:text-gray-400">暂无链接</li>
-              )}
+              {links.value.map(link => (
+                <li class="truncate">
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-blue-600 hover:underline dark:text-blue-400"
+                    title={link.url}>
+                    {link.children?.map(child => (child.type === "text" ? child.value : "")).join("") || link.url}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -112,22 +108,18 @@ const Develop = defineComponent({
           <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-md dark:border-gray-700 dark:bg-gray-800">
             <h3 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">图片</h3>
             <ul class="space-y-2 text-sm">
-              {images.value.length > 0 ? (
-                images.value.map(image => (
-                  <li class="truncate">
-                    <a
-                      href={image.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="text-blue-600 hover:underline dark:text-blue-400"
-                      title={image.url}>
-                      {image.alt || image.url}
-                    </a>
-                  </li>
-                ))
-              ) : (
-                <li class="text-gray-500 italic dark:text-gray-400">暂无图片</li>
-              )}
+              {images.value.map(image => (
+                <li class="truncate">
+                  <a
+                    href={image.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-blue-600 hover:underline dark:text-blue-400"
+                    title={image.url}>
+                    {image.alt || image.url}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
