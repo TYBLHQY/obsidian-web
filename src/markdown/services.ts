@@ -1,28 +1,4 @@
-import type {
-  ASTNode,
-  BlockquoteNode,
-  CodeBlockNode,
-  CodeNode,
-  EmphasisNode,
-  HeadingNode,
-  ImageNode,
-  InlineMathNode,
-  LinkNode,
-  ListItemNode,
-  ListNode,
-  MarkNode,
-  MathNode,
-  ParagraphNode,
-  ParseOptions,
-  RootNode,
-  StrongNode,
-  TableCellNode,
-  TableNode,
-  TableRowNode,
-  TextNode,
-  ThematicBreakNode,
-  YamlNode,
-} from "@/markdown/types";
+import type { ASTNode, NodeData, ParseOptions } from "@/markdown/types";
 import type { Root, RootContent } from "mdast";
 import remarkFlexibleMarkers from "remark-flexible-markers";
 import remarkFrontmatter from "remark-frontmatter";
@@ -55,7 +31,7 @@ export class MarkdownParser {
         return {
           type: "blockquote",
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
-        } as BlockquoteNode;
+        } as NodeData<"blockquote">;
 
       case "code":
         return {
@@ -63,26 +39,26 @@ export class MarkdownParser {
           value: node.value,
           lang: node.lang,
           meta: node.meta,
-        } as CodeBlockNode;
+        } as NodeData<"codeBlock">;
 
       case "root":
         return {
           type: "root",
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
-        } as RootNode;
+        } as NodeData<"root">;
 
       case "paragraph":
         return {
           type: "paragraph",
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
-        } as ParagraphNode;
+        } as NodeData<"paragraph">;
 
       case "heading":
         return {
           type: "heading",
           depth: node.depth,
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
-        } as HeadingNode;
+        } as NodeData<"heading">;
 
       case "list":
         return {
@@ -90,32 +66,32 @@ export class MarkdownParser {
           ordered: node.ordered || false,
           start: node.start,
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
-        } as ListNode;
+        } as NodeData<"list">;
 
       case "listItem":
         return {
           type: "listItem",
           checked: node.checked,
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
-        } as ListItemNode;
+        } as NodeData<"listItem">;
 
       case "inlineCode":
         return {
           type: "code",
           value: node.value,
-        } as CodeNode;
+        } as NodeData<"code">;
 
       case "emphasis":
         return {
           type: "emphasis",
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
-        } as EmphasisNode;
+        } as NodeData<"emphasis">;
 
       case "strong":
         return {
           type: "strong",
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
-        } as StrongNode;
+        } as NodeData<"strong">;
 
       case "link":
         return {
@@ -123,7 +99,7 @@ export class MarkdownParser {
           url: node.url,
           title: node.title,
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
-        } as LinkNode;
+        } as NodeData<"link">;
 
       case "image":
         return {
@@ -131,62 +107,62 @@ export class MarkdownParser {
           url: node.url,
           alt: node.alt,
           title: node.title,
-        } as ImageNode;
+        } as NodeData<"image">;
 
       case "text":
         return {
           type: "text",
           value: node.value,
-        } as TextNode;
+        } as NodeData<"text">;
 
       case "mark":
         return {
           type: "mark",
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
-        } as MarkNode;
+        } as NodeData<"mark">;
 
       case "math":
         return {
           type: "math",
           value: node.value,
           meta: node.meta,
-        } as MathNode;
+        } as NodeData<"math">;
 
       case "inlineMath":
         return {
           type: "inlineMath",
           value: node.value,
-        } as InlineMathNode;
+        } as NodeData<"inlineMath">;
 
       case "thematicBreak":
         return {
           type: "thematicBreak",
-        } as ThematicBreakNode;
+        } as NodeData<"thematicBreak">;
 
       case "table":
         return {
           type: "table",
           align: node.align,
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
-        } as TableNode;
+        } as NodeData<"table">;
 
       case "tableRow":
         return {
           type: "tableRow",
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
-        } as TableRowNode;
+        } as NodeData<"tableRow">;
 
       case "tableCell":
         return {
           type: "tableCell",
           children: (node.children || []).map(child => this.mdastToCustomAST(child)),
-        } as TableCellNode;
+        } as NodeData<"tableCell">;
 
       case "yaml":
         return {
           type: "yaml",
           value: node.value,
-        } as YamlNode;
+        } as NodeData<"yaml">;
 
       case "html":
         return {

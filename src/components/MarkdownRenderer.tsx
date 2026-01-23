@@ -1,29 +1,4 @@
-import type {
-  ASTNode,
-  BlockquoteNode,
-  CodeBlockNode,
-  CodeNode,
-  EmphasisNode,
-  HeadingNode,
-  HTMLNode,
-  ImageNode,
-  InlineMathNode,
-  LinkNode,
-  ListItemNode,
-  ListNode,
-  MarkNode,
-  MathNode,
-  ParagraphNode,
-  RenderConfig,
-  RootNode,
-  StrongNode,
-  TableAlign,
-  TableCellNode,
-  TableNode,
-  TableRowNode,
-  TextNode,
-  YamlNode,
-} from "@/markdown";
+import type { ASTNode, NodeData, RenderConfig, TableAlign } from "@/markdown";
 import hljs from "highlight.js";
 import katex from "katex";
 import type { PropType } from "vue";
@@ -129,7 +104,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染块引用
-    const renderBlockquote = (node: BlockquoteNode) => {
+    const renderBlockquote = (node: NodeData<"blockquote">) => {
       return (
         <blockquote
           class={
@@ -141,7 +116,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染行内代码
-    const renderCode = (node: CodeNode) => {
+    const renderCode = (node: NodeData<"code">) => {
       return (
         <pre
           class={
@@ -153,7 +128,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染代码块
-    const renderCodeBlock = (node: CodeBlockNode) => {
+    const renderCodeBlock = (node: NodeData<"codeBlock">) => {
       return (
         <CodeBlock
           code={node.value}
@@ -163,14 +138,14 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染强调（斜体）
-    const renderEmphasis = (node: EmphasisNode) => {
+    const renderEmphasis = (node: NodeData<"emphasis">) => {
       return (
         <em class={"text-gray-900 italic dark:text-gray-100"}>{node.children?.map(child => renderNode(child))}</em>
       );
     };
 
     // 渲染标题
-    const renderHeading = (node: HeadingNode) => {
+    const renderHeading = (node: NodeData<"heading">) => {
       return [
         <h1
           class={"mb-6 text-4xl leading-tight font-bold tracking-tight text-gray-900 md:text-5xl dark:text-gray-100"}
@@ -208,7 +183,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染 HTML
-    const renderHTML = (node: HTMLNode) => {
+    const renderHTML = (node: NodeData<"html">) => {
       if (!finalConfig.value.allowHtml) {
         return null;
       }
@@ -221,7 +196,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染图片
-    const renderImage = (node: ImageNode) => {
+    const renderImage = (node: NodeData<"image">) => {
       return (
         <figure class={"my-4 text-center"}>
           <img
@@ -239,7 +214,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染行内数学公式
-    const renderInlineMath = (node: InlineMathNode) => {
+    const renderInlineMath = (node: NodeData<"inlineMath">) => {
       const html = katex.renderToString(node.value, {
         displayMode: false,
         throwOnError: false,
@@ -253,7 +228,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染链接
-    const renderLink = (node: LinkNode) => {
+    const renderLink = (node: NodeData<"link">) => {
       return (
         <a
           href={node.url}
@@ -267,7 +242,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染列表
-    const renderList = (node: ListNode) => {
+    const renderList = (node: NodeData<"list">) => {
       return [
         <ul class={"mb-4 ml-6 list-disc space-y-2 text-gray-900 dark:text-gray-100"}>
           {node.children?.map(child => renderNode(child))}
@@ -281,7 +256,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染列表项
-    const renderListItem = (node: ListItemNode) => {
+    const renderListItem = (node: NodeData<"listItem">) => {
       return [
         <li class={"mb-2 flex items-start gap-3"}>
           <input
@@ -297,7 +272,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染标记文本
-    const renderMark = (node: MarkNode) => {
+    const renderMark = (node: NodeData<"mark">) => {
       return (
         <mark class={"bg-yellow-200 text-gray-900 dark:bg-yellow-800 dark:text-gray-100"}>
           {node.children?.map(child => renderNode(child))}
@@ -306,7 +281,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染块级数学公式
-    const renderMath = (node: MathNode) => {
+    const renderMath = (node: NodeData<"math">) => {
       const html = katex.renderToString(node.value, {
         displayMode: true,
         throwOnError: false,
@@ -322,17 +297,17 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染段落
-    const renderParagraph = (node: ParagraphNode) => {
+    const renderParagraph = (node: NodeData<"paragraph">) => {
       return <p class={"mb-4 text-gray-900 dark:text-gray-100"}>{node.children?.map(child => renderNode(child))}</p>;
     };
 
     // 渲染根节点
-    const renderRoot = (node: RootNode) => {
+    const renderRoot = (node: NodeData<"root">) => {
       return <article class={"mx-auto max-w-4xl"}>{node.children?.map(child => renderNode(child))}</article>;
     };
 
     // 渲染加粗
-    const renderStrong = (node: StrongNode) => {
+    const renderStrong = (node: NodeData<"strong">) => {
       return (
         <strong class={"font-bold text-gray-900 dark:text-gray-100"}>
           {node.children?.map(child => renderNode(child))}
@@ -341,25 +316,29 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染表格
-    const renderTable = (node: TableNode) => {
+    const renderTable = (node: NodeData<"table">) => {
       return (
         <table class={"mb-4 w-full border-collapse border border-gray-300 dark:border-gray-600"}>
-          {node.children?.map(child => renderTableRow(child, node.align))}
+          {node.children?.map(child => {
+            return child.type === "tableRow" ? renderTableRow(child, node.align) : null;
+          })}
         </table>
       );
     };
 
     // 渲染表格行
-    const renderTableRow = (node: TableRowNode, align?: TableAlign[]) => {
+    const renderTableRow = (node: NodeData<"tableRow">, align?: TableAlign[]) => {
       return (
         <tr class={"transition-colors hover:bg-gray-50 dark:hover:bg-gray-900"}>
-          {node.children?.map((child, index) => renderTableCell(child, align?.[index]))}
+          {node.children?.map((child, index) => {
+            return child.type === "tableCell" ? renderTableCell(child, align?.[index]) : null;
+          })}
         </tr>
       );
     };
 
     // 渲染表格单元格
-    const renderTableCell = (node: TableCellNode, align?: TableAlign) => {
+    const renderTableCell = (node: NodeData<"tableCell">, align?: TableAlign) => {
       const textAlignClass = align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left";
       return (
         <td
@@ -370,7 +349,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染纯文本
-    const renderText = (node: TextNode) => {
+    const renderText = (node: NodeData<"text">) => {
       return node.value;
     };
 
@@ -380,7 +359,7 @@ const ASTRenderer = defineComponent({
     };
 
     // 渲染 yaml
-    const renderYaml = (node: YamlNode) => {
+    const renderYaml = (node: NodeData<"yaml">) => {
       return (
         <pre class={"mb-4 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100 dark:bg-gray-950"}>
           <code class={"font-mono whitespace-pre-wrap"}>{node.value}</code>
@@ -394,7 +373,7 @@ const ASTRenderer = defineComponent({
     };
 
     // helper function: 生成标题 id
-    const generateId = (node: HeadingNode): string => {
+    const generateId = (node: NodeData<"heading">): string => {
       const text = extractTextContent(node).toLowerCase().replace(/[\s]+/g, "-").replace(/^-|-$/g, "");
       const hashed = Array.from(text).reduce((hash, char) => {
         hash = (hash << 5) - hash + char.charCodeAt(0);
@@ -407,7 +386,7 @@ const ASTRenderer = defineComponent({
     // helper function: 提取节点文本内容
     const extractTextContent = (node: ASTNode): string => {
       if (node.type === "text") {
-        return (node as TextNode).value;
+        return node.value;
       }
       if ("children" in node && node.children) {
         return node.children.map(child => extractTextContent(child)).join("");

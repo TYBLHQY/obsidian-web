@@ -16,61 +16,16 @@ interface NodeSchema {
   paragraph: { children: ASTNode[] };
   root: { children: ASTNode[] };
   strong: { children: ASTNode[] };
-  table: { align?: TableAlign[]; children: TableRowNode[] };
-  tableRow: { children: TableCellNode[] };
+  table: { align?: TableAlign[]; children: ASTNode[] };
+  tableRow: { children: ASTNode[] };
   tableCell: { align?: TableAlign; children: ASTNode[] };
   text: { value: string };
-  thematicBreak: "";
+  thematicBreak: Record<string, never>;
   yaml: { value: string };
 }
 
-type NodeData<K extends keyof NodeSchema> = { type: K } & NodeSchema[K];
-export type BlockquoteNode = NodeData<"blockquote">;
-export type CodeBlockNode = NodeData<"codeBlock">;
-export type CodeNode = NodeData<"code">;
-export type EmphasisNode = NodeData<"emphasis">;
-export type HeadingNode = NodeData<"heading">;
-export type HTMLNode = NodeData<"html">;
-export type ImageNode = NodeData<"image">;
-export type InlineMathNode = NodeData<"inlineMath">;
-export type LinkNode = NodeData<"link">;
-export type ListItemNode = NodeData<"listItem">;
-export type ListNode = NodeData<"list">;
-export type MarkNode = NodeData<"mark">;
-export type MathNode = NodeData<"math">;
-export type ParagraphNode = NodeData<"paragraph">;
-export type RootNode = NodeData<"root">;
-export type StrongNode = NodeData<"strong">;
-export type TableNode = NodeData<"table">;
-export type TableCellNode = NodeData<"tableCell">;
-export type TableRowNode = NodeData<"tableRow">;
-export type TextNode = NodeData<"text">;
-export type ThematicBreakNode = NodeData<"thematicBreak">;
-export type YamlNode = NodeData<"yaml">;
-
-export type ASTNode =
-  | BlockquoteNode
-  | CodeBlockNode
-  | CodeNode
-  | EmphasisNode
-  | HeadingNode
-  | HTMLNode
-  | ImageNode
-  | InlineMathNode
-  | LinkNode
-  | ListItemNode
-  | ListNode
-  | MarkNode
-  | MathNode
-  | ParagraphNode
-  | RootNode
-  | StrongNode
-  | TableNode
-  | TableCellNode
-  | TableRowNode
-  | TextNode
-  | ThematicBreakNode
-  | YamlNode;
+export type NodeData<K extends keyof NodeSchema> = { type: K } & NodeSchema[K];
+export type ASTNode = { [K in keyof NodeSchema]: NodeData<K> }[keyof NodeSchema];
 
 export interface RenderConfig {
   classNamePrefix?: string;
